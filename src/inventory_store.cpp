@@ -199,8 +199,8 @@ read_file_at(int directory,
              bool optional,
              std::string_view label)
 {
-  const int opened =
-      ::openat(directory, name, O_RDONLY | O_CLOEXEC | O_NOFOLLOW);
+  const int opened = ::openat(
+      directory, name, O_RDONLY | O_CLOEXEC | O_NOFOLLOW | O_NONBLOCK);
   if (opened == -1)
   {
     if (optional && errno == ENOENT)

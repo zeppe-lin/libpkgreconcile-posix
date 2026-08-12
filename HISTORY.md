@@ -12,6 +12,7 @@ Initial native POSIX persistence boundary.
 - suppress replay of exact resolved evidence;
 - resolve exact pending tuples idempotently;
 - refuse corrupt, mismatched, or ambiguous authoritative state;
+- refuse FIFO substitutions at authoritative file names without blocking;
 - anchor open handles to directory authority rather than a mutable pathname; and
 - qualify shared/static, GCC/Clang, sanitizers, headers, ABI, and repository
   contracts.

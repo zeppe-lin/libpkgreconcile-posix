@@ -12,6 +12,50 @@
 #include <filesystem>
 
 #include <sys/stat.h>
+#include <sys/wait.h>
+#include <unistd.h>
+
+namespace {
+
+void expect_store_refusal_without_block(
+    const std::filesystem::path& root,
+    const pkgreconcile::reconciliation_target_reference& target)
+{
+  const pid_t child = ::fork();
+  TEST_CHECK(child != -1);
+  if (child == 0)
+  {
+    ::alarm(2);
+    try
+    {
+      static_cast<void>(
+          pkgreconcile::posix::inventory_generation_store::open_existing(
+              root, target));
+    }
+    catch (const pkgreconcile::posix::store_error&)
+    {
+      std::_Exit(0);
+    }
+    catch (...)
+    {
+      std::_Exit(2);
+    }
+    std::_Exit(1);
+  }
+
+  int status = 0;
+  TEST_CHECK(::waitpid(child, &status, 0) == child);
+  TEST_CHECK(WIFEXITED(status));
+  TEST_CHECK(WEXITSTATUS(status) == 0);
+}
+
+void replace_with_fifo(const std::filesystem::path& path)
+{
+  TEST_CHECK(::unlink(path.c_str()) == 0);
+  TEST_CHECK(::mkfifo(path.c_str(), 0444) == 0);
+}
+
+} // namespace
 
 int main()
 {
@@ -89,6 +133,35 @@ int main()
     TEST_CHECK_THROWS(
         static_cast<void>(inventory_generation_store::open_existing(root, target)),
         store_error);
+  });
+
+  tests.run("reject special authoritative files without blocking", [] {
+    test_support::temp_directory temporary;
+    const auto target = test_fixtures::make_target();
+
+    {
+      const auto root = temporary.path() / "binding-fifo";
+      { inventory_generation_store store(root, target); }
+      replace_with_fifo(root / "binding");
+      expect_store_refusal_without_block(root, target);
+    }
+
+    {
+      const auto root = temporary.path() / "selector-fifo";
+      { inventory_generation_store store(root, target); }
+      replace_with_fifo(root / "current");
+      expect_store_refusal_without_block(root, target);
+    }
+
+    {
+      const auto root = temporary.path() / "inventory-fifo";
+      { inventory_generation_store store(root, target); }
+      const auto generation = test_support::selected_generation(root);
+      TEST_CHECK(::chmod(generation.c_str(), 0755) == 0);
+      replace_with_fifo(generation / "inventory");
+      TEST_CHECK(::chmod(generation.c_str(), 0555) == 0);
+      expect_store_refusal_without_block(root, target);
+    }
   });
 
   tests.run("reject writable canonical metadata", [] {

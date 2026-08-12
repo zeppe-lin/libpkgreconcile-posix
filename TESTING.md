@@ -29,6 +29,7 @@ Real filesystem-backed store behavior:
 - root-directory authority after rename/replacement;
 - symlink refusal;
 - selector, binding, mode, and generation corruption;
+- non-blocking refusal when authoritative file names are replaced by FIFOs;
 - narrow interrupted-initialization completion;
 - refusal of missing authoritative components; and
 - ignorance of unselected temporary crash debris.

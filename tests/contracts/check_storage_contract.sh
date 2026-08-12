@@ -22,6 +22,7 @@ grep -F "'Z', 'L', 'R', 'I', 'N', 'V', '0', '1'" "$source" >/dev/null ||
   fail 'inventory format magic drifted from version 1'
 grep -F 'v1:sha256:' "$source" >/dev/null || fail 'generation identity version drifted'
 grep -F 'v1:sha256:' "$storage" >/dev/null || fail 'storage documentation omits identity version'
+grep -F 'O_NONBLOCK' "$source" >/dev/null || fail 'authoritative file reads may block on special files'
 grep -F 'Version 0.1.0 never removes them automatically' "$storage" >/dev/null ||
   fail 'storage document does not pin tombstone-retention policy'
 

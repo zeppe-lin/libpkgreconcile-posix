@@ -121,7 +121,9 @@ The provider refuses rather than reconstructs authoritative state when a bound
 store loses or corrupts its selector, binding, or selected generation.
 
 Temporary crash debris is ignored when it is not selected. No temporary name is
-interpreted as authority.
+interpreted as authority. Authoritative file names are opened non-blocking and
+then required to name immutable regular files, so a corrupt FIFO cannot turn
+validation into an indefinite wait before type refusal.
 
 Initialization has one narrow recoverable state: an empty generation for the
 same target was durably selected but the binding file was not yet published.

@@ -21,7 +21,9 @@ STORE/
       inventory
 ```
 
-`binding`, `current`, and `inventory` are regular immutable files. Generation
+`binding`, `current`, and `inventory` are regular immutable files. Authoritative
+file opens are non-blocking before regular-file validation so a FIFO occupying
+one of these names is refused without waiting for a writer. Generation
 directories are immutable after installation. Temporary names contain `.tmp.`
 and are never authoritative.
 

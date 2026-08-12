@@ -47,6 +47,8 @@ grep -Fi 'Linux-hosted POSIX mechanism code' "$root/DESIGN.md" >/dev/null ||
   fail 'DESIGN omits the actual host mechanism boundary'
 grep -Fi 'std::filesystem::path::native()' "$root/STORAGE.md" >/dev/null ||
   fail 'STORAGE omits the persisted native path-byte contract'
+grep -Fi 'file opens are non-blocking' "$root/STORAGE.md" >/dev/null ||
+  fail 'STORAGE omits non-blocking authoritative-file refusal'
 
 for document in README.md DESIGN.md STORAGE.md; do
   grep -Fi 'target' "$root/$document" >/dev/null || fail "$document omits target binding"

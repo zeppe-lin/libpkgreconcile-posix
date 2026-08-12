@@ -42,6 +42,9 @@ the same operation is safe because both public mutations are idempotent.
 
 Store handles retain an opened directory authority. Renaming or replacing the
 configured pathname after construction does not retarget an existing handle.
+Authoritative file names are opened non-blocking and then required to be regular
+immutable files, so replacing one with a FIFO is refused rather than allowed to
+stall an indefinite read wait.
 
 ## Boundary
 
